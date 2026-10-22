@@ -1,5 +1,3 @@
-'use client';
-
 import { useCallback, useContext, useMemo } from 'react';
 
 import {

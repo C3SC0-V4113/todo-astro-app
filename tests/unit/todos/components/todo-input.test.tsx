@@ -1,11 +1,12 @@
 /* eslint-disable testing-library/no-manual-cleanup */
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import TodoInput from '@/features/todos/components/todo-input';
+import TodoList from '@/features/todos/components/todo-list';
 
-import { renderWithProvider } from '../test-utils';
+import { createFakeRepository, renderWithProvider } from '../test-utils';
 
 afterEach(cleanup);
 
@@ -34,6 +35,26 @@ describe('TodoInput', () => {
     await user.type(input, '   {Enter}');
 
     expect(input).toHaveProperty('value', '   ');
+  });
+
+  it('does not create tasks from empty or whitespace-only input', async () => {
+    const user = userEvent.setup();
+    renderWithProvider(
+      <>
+        <TodoInput />
+        <TodoList />
+      </>,
+      { repository: createFakeRepository() }
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Cargando tareas…/i)).toBeNull();
+    });
+
+    const input = screen.getByRole('textbox', { name: /Nueva tarea/i });
+    await user.type(input, '   {Enter}');
+
+    expect(screen.queryAllByRole('listitem')).toHaveLength(0);
   });
 
   it('throws when used outside of a TodoProvider', () => {

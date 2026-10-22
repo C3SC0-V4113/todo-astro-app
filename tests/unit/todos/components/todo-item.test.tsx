@@ -13,7 +13,7 @@ describe('TodoItem', () => {
   const todo = { id: '1', title: 'Tarea de prueba', completed: false, createdAt: 1 };
 
   it('renders the todo title and controls', () => {
-    renderWithProvider(<TodoItem todo={todo} />);
+    renderWithProvider(<TodoItem todo={todo} filter="all" />);
 
     expect(screen.getByText('Tarea de prueba')).not.toBeNull();
     expect(screen.getByRole('checkbox')).not.toBeNull();
@@ -23,7 +23,7 @@ describe('TodoItem', () => {
 
   it('starts editing when the edit button is clicked', async () => {
     const user = userEvent.setup();
-    renderWithProvider(<TodoItem todo={todo} />);
+    renderWithProvider(<TodoItem todo={todo} filter="all" />);
 
     await user.click(screen.getByRole('button', { name: /Editar/i }));
 
@@ -32,7 +32,7 @@ describe('TodoItem', () => {
 
   it('starts editing on double click', async () => {
     const user = userEvent.setup();
-    renderWithProvider(<TodoItem todo={todo} />);
+    renderWithProvider(<TodoItem todo={todo} filter="all" />);
 
     await user.dblClick(screen.getByText('Tarea de prueba'));
 
@@ -41,7 +41,7 @@ describe('TodoItem', () => {
 
   it('cancels editing with Escape', async () => {
     const user = userEvent.setup();
-    renderWithProvider(<TodoItem todo={todo} />);
+    renderWithProvider(<TodoItem todo={todo} filter="all" />);
 
     await user.dblClick(screen.getByText('Tarea de prueba'));
     const textbox = screen.getByRole('textbox');
@@ -53,6 +53,6 @@ describe('TodoItem', () => {
   });
 
   it('throws when used outside of a TodoProvider', () => {
-    expect(() => render(<TodoItem todo={todo} />)).toThrow(/useTodos/i);
+    expect(() => render(<TodoItem todo={todo} filter="all" />)).toThrow(/useTodos/i);
   });
 });
