@@ -1,0 +1,17 @@
+allowBuilds:
+  esbuild: true
+  unrs-resolver: true
+minimumReleaseAgeExclude:
+  - '@astrojs/markdown-satteri@0.4.5'
+  - '@astrojs/mdx@8.1.1'
+  - '@astrojs/prism@4.1.1'
+  - '@astrojs/telemetry@3.4.1'
+  - astro@7.4.2
+  - '@astrojs/react@7.1.1'
+minimumReleaseAge: 1440
+trustPolicy: no-downgrade
+blockExoticSubdeps: true
+verifyDepsBeforeRun: false
+trustPolicyExclude:
+  - 'chokidar@4.0.3'
+  - 'semver@6.3.1'
