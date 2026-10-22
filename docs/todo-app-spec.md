@@ -53,3 +53,14 @@ UI copy is in Spanish.
 - The list renders three `Skeleton` rows at the height of a single-line task row (`h-12.5`, 50px). The footer count renders a `Skeleton` in place of "N pendientes", so the static HTML never shows a wrong "0 pendientes".
 - The skeleton container fades in after 300ms. Hydration usually lands before that, so a fast load swaps straight to content without a flash. `Skeleton`'s own `animate-pulse` only changes opacity, which is acceptable under reduced motion.
 - Screen readers: skeletons are `aria-hidden`. A visually hidden "Cargando tareas…" paragraph stays readable while browsing, but it is not a live region, so nothing is announced on page load. The footer's `aria-live="polite"` region mounts with its first count after hydration, so loading stored data is not announced either; later count changes are.
+
+### Empty store versus a filter with no matches
+
+- **Empty store** (`todos.length === 0`, any filter): `TodoEmptyState` renders a heading, guidance and a CTA in a dashed panel. Its `min-h-41.5` (166px) matches the three skeleton rows, so an empty store loads with no layout shift.
+  - Heading (`h2`): "Aún no tienes tareas".
+  - Guidance: "Escribe en «Nueva tarea» y pulsa Enter para guardarla." It names the field's visible label, because the input has no submit button.
+  - CTA (`Button variant="outline"`): "Añadir tu primera tarea".
+- **Filter with no matches** (tasks exist, none visible): a muted paragraph, without the CTA. Adding a task is not the fix here; switching filters is, and the filter buttons sit right below.
+  - Pendientes: "No hay tareas pendientes."
+  - Completadas: "Todavía no hay tareas completadas."
+- **Focus:** showing the empty state never moves focus, on load or after the last task is deleted (deleting already returns focus to the input as before). Only an explicit CTA activation (click, Enter or Space) moves focus to `#new-todo`. That is the CTA's whole promise and the one place a task can be added, so it works like an in-page skip link; screen readers then announce the labelled "Nueva tarea" field. An `<a href="#new-todo">` was rejected because fragment navigation does not reliably focus the input across browsers.
