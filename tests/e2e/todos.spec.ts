@@ -231,6 +231,23 @@ test('shows the empty state without moving focus, and its CTA focuses the new-ta
   await expect(page.getByRole('heading', { name: 'Aún no tienes tareas' })).toBeVisible();
 });
 
+test('tells a filter with no matches apart from an empty list', async ({ page }) => {
+  await openApp(page);
+  const input = page.getByRole('textbox', { name: 'Nueva tarea' });
+  await input.fill('Sin completar');
+  await input.press('Enter');
+
+  await page.getByRole('button', { name: 'Completadas', exact: true }).click();
+  await expect(page.getByText('Todavía no hay tareas completadas.')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Aún no tienes tareas' })).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Añadir tu primera tarea' })).toBeHidden();
+
+  await page.getByRole('button', { name: 'Pendientes', exact: true }).click();
+  await page.getByRole('checkbox', { name: 'Marcar Sin completar' }).click();
+  await expect(page.getByText('No hay tareas pendientes.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Añadir tu primera tarea' })).toBeHidden();
+});
+
 test('renders the static task page before JavaScript runs', async ({ browser }) => {
   const context = await browser.newContext({
     baseURL: 'http://127.0.0.1:3000',

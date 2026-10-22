@@ -4,9 +4,17 @@ import { useTodos } from '@/features/todos/hooks/use-todos';
 import TodoEmptyState from './todo-empty-state';
 import TodoItem from './todo-item';
 
+import type { Filter } from '@/features/todos/types';
+
 // Placeholder rows reserve roughly the height of a short list. They fade in
 // after a delay so a fast hydration swaps content without flashing them.
 const SKELETON_ROWS = ['first', 'second', 'third'] as const;
+
+// Shown when tasks exist but none match the active filter.
+const NO_MATCH_MESSAGES: Record<Exclude<Filter, 'all'>, string> = {
+  active: 'No hay tareas pendientes.',
+  completed: 'Todavía no hay tareas completadas.',
+};
 
 export default function TodoList() {
   const { todos, visibleTodos, hydrated, filter } = useTodos();
@@ -26,8 +34,8 @@ export default function TodoList() {
     return <TodoEmptyState />;
   }
 
-  if (visibleTodos.length === 0) {
-    return <p className="text-muted-foreground">No hay tareas para mostrar.</p>;
+  if (visibleTodos.length === 0 && filter !== 'all') {
+    return <p className="text-muted-foreground">{NO_MATCH_MESSAGES[filter]}</p>;
   }
 
   return (

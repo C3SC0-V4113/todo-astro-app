@@ -74,4 +74,21 @@ describe('TodoEmptyState', () => {
     expect(screen.getByRole('list', { name: 'Lista de tareas' })).toBeVisible();
     expect(screen.getByText('Primera tarea')).toBeVisible();
   });
+
+  it.each([
+    ['active', 'No hay tareas pendientes.', true],
+    ['completed', 'Todavía no hay tareas completadas.', false],
+  ] as const)(
+    'shows a filter message without the CTA when no task matches the %s filter',
+    (filter, message, completed) => {
+      renderInputAndList({
+        todos: [{ id: '1', title: 'Existente', completed, createdAt: 1 }],
+        filter,
+      });
+
+      expect(screen.getByText(message)).toBeVisible();
+      expect(screen.queryByRole('heading', { name: 'Aún no tienes tareas' })).toBeNull();
+      expect(screen.queryByRole('button', { name: 'Añadir tu primera tarea' })).toBeNull();
+    }
+  );
 });
