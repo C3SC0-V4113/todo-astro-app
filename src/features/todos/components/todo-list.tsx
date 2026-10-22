@@ -1,11 +1,9 @@
-'use client';
-
 import { useTodos } from '@/features/todos/hooks/use-todos';
 
 import TodoItem from './todo-item';
 
 export default function TodoList() {
-  const { visibleTodos, hydrated } = useTodos();
+  const { visibleTodos, hydrated, filter } = useTodos();
 
   if (!hydrated) {
     return <p className="text-muted-foreground">Cargando tareas…</p>;
@@ -19,7 +17,7 @@ export default function TodoList() {
     <ul className="flex flex-col gap-2" aria-label="Lista de tareas">
       {visibleTodos.map((todo) => (
         <li key={todo.id}>
-          <TodoItem todo={todo} />
+          <TodoItem todo={todo} filter={filter} />
         </li>
       ))}
     </ul>

@@ -1,5 +1,3 @@
-'use client';
-
 import { useMemo } from 'react';
 
 import TodoFilters from '@/features/todos/components/todo-filters';

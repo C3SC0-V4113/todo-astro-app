@@ -1,18 +1,27 @@
 /* eslint-disable testing-library/no-manual-cleanup */
 import { cleanup, screen, waitFor } from '@testing-library/react';
+import { renderToString } from 'react-dom/server';
 import { afterEach, describe, expect, it } from 'vitest';
 
+import TodoInput from '@/features/todos/components/todo-input';
 import TodoList from '@/features/todos/components/todo-list';
+import { TodoProvider } from '@/features/todos/state/todo-context';
 
 import { createFakeRepository, renderWithProvider } from '../test-utils';
 
 afterEach(cleanup);
 
 describe('TodoList', () => {
-  it('shows a loading message while not hydrated', () => {
-    renderWithProvider(<TodoList />, { repository: createFakeRepository() });
+  it('renders the loading message and the new-task input in static HTML', () => {
+    const view = renderToString(
+      <TodoProvider repository={createFakeRepository()}>
+        <TodoInput />
+        <TodoList />
+      </TodoProvider>
+    );
 
-    expect(screen.getByText(/Cargando tareas…/i)).not.toBeNull();
+    expect(view).toContain('Cargando tareas…');
+    expect(view).toContain('Nueva tarea');
   });
 
   it('shows an empty message when hydrated and there are no visible todos', async () => {

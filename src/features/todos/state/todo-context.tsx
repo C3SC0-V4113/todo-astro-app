@@ -2,7 +2,6 @@
    The spec requires useReducer to live inside TodoProvider and expose state/dispatch
    through React context. The rule misidentifies this provider pattern as passing data
    to a parent component. */
-'use client';
 
 import { createContext, useContext, useEffect, useMemo, useReducer, type ReactNode } from 'react';
 
