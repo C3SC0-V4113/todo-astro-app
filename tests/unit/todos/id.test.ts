@@ -29,4 +29,17 @@ describe('createId', () => {
       if (descriptor) Object.defineProperty(globalThis, 'crypto', descriptor);
     }
   });
+
+  it('generates unique fallback ids within the same millisecond', () => {
+    const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
+    const now = vi.spyOn(Date, 'now').mockReturnValue(1_700_000_000_000);
+    try {
+      Object.defineProperty(globalThis, 'crypto', { configurable: true, value: {} });
+      const ids = Array.from({ length: 100 }, () => createId());
+      expect(new Set(ids).size).toBe(ids.length);
+    } finally {
+      now.mockRestore();
+      if (descriptor) Object.defineProperty(globalThis, 'crypto', descriptor);
+    }
+  });
 });
