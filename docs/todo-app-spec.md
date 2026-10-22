@@ -27,7 +27,7 @@ Source of truth for the implementers. The quality gates and rules in `AGENTS.md`
 
 Only the coordinator changes `package.json`, `pnpm-lock.yaml`, configs or `src/components/ui/`.
 
-Available primitives in `src/components/ui/`: `button`, `input`, `checkbox`, `label`. Icons come from `lucide-react`.
+Available primitives in `src/components/ui/`: `button`, `input`, `checkbox`, `label`, `skeleton`. Icons come from `lucide-react`.
 
 Test libraries:
 
@@ -45,3 +45,14 @@ Test libraries:
 7. TypeScript is strict with no `any`. `pnpm run lint`, `typecheck`, `format:check` and `test` all pass. Coverage is at least 90 % for `state/` and `services/` and at least 80 % overall (`pnpm exec vitest run --coverage`).
 
 UI copy is in Spanish.
+
+## UI states
+
+### Loading (static HTML, before the store hydrates)
+
+- The list renders three `Skeleton` rows at the height of a single-line task row (`h-12.5`, 50px). The footer count renders a `Skeleton` in place of "N pendientes", so the static HTML never shows a wrong "0 pendientes".
+- Motion is opt-in (`prefers-reduced-motion: no-preference` via `motion-safe:`), and the skeleton keeps its shape and size (50px rows) either way:
+  - `no-preference`: the container fades in after a 300ms delay (`animate-in`, `fade-in`, `delay-300`, `duration-300` and `fill-mode-both`, each behind `motion-safe:`). Hydration usually lands before that, so a fast load swaps straight to content without a flash. Each `Skeleton` pulses (`motion-safe:animate-pulse` in the primitive).
+  - `reduce`: no animation and no delay. The container and every `Skeleton` render static and visible at once.
+  - An E2E test reads the computed `animation-name`, delay, duration, opacity and the 50px height under both preferences.
+- Screen readers: skeletons are `aria-hidden`. A visually hidden "Cargando tareas…" paragraph stays readable while browsing, but it is not a live region, so nothing is announced on page load. The footer's `aria-live="polite"` region mounts with its first count after hydration, so loading stored data is not announced either; later count changes are.

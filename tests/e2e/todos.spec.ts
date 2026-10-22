@@ -10,6 +10,7 @@ async function openApp(page: Page) {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Tareas', level: 1 })).toBeVisible();
   await expect(page.getByText('Cargando tareas…')).toBeHidden();
+  await expect(page.locator('[data-slot="skeleton"]')).toHaveCount(0);
 }
 
 async function expectKeyboardFocus(locator: Locator) {
@@ -233,11 +234,48 @@ test('renders the static task page before JavaScript runs', async ({ browser }) 
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'Tareas', level: 1 })).toBeVisible();
     await expect(page.getByRole('textbox', { name: 'Nueva tarea' })).toBeVisible();
-    await expect(page.getByText('Cargando tareas…')).toBeVisible();
+    // The loading message is for screen readers; sighted users get skeleton
+    // rows, which stay out of the accessibility tree.
+    await expect(page.getByText('Cargando tareas…')).toHaveClass('sr-only');
+    const skeletons = page.locator('[data-slot="skeleton"]');
+    await expect(skeletons).toHaveCount(4);
+    await expect(skeletons.first()).toBeVisible();
+    for (const skeleton of await skeletons.all()) {
+      await expect(skeleton).toHaveAttribute('aria-hidden', 'true');
+    }
+    await expect(page.getByText(/pendientes?$/)).toHaveCount(0);
   } finally {
     await context.close();
   }
 });
+
+for (const reducedMotion of ['no-preference', 'reduce'] as const) {
+  test(`keeps the skeleton shape and gates its motion with reduced motion: ${reducedMotion}`, async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({
+      baseURL: 'http://127.0.0.1:3000',
+      javaScriptEnabled: false,
+      reducedMotion,
+    });
+    try {
+      const page = await context.newPage();
+      await page.goto('/');
+      const skeleton = page.locator('[data-slot="skeleton"]').first();
+      const container = skeleton.locator('..');
+      const motionAllowed = reducedMotion === 'no-preference';
+
+      await expect(skeleton).toHaveCSS('height', '50px');
+      await expect(skeleton).toHaveCSS('animation-name', motionAllowed ? 'pulse' : 'none');
+      await expect(container).toHaveCSS('animation-name', motionAllowed ? 'enter' : 'none');
+      await expect(container).toHaveCSS('animation-delay', motionAllowed ? '0.3s' : '0s');
+      await expect(container).toHaveCSS('animation-duration', motionAllowed ? '0.3s' : '0s');
+      await expect(container).toHaveCSS('opacity', '1');
+    } finally {
+      await context.close();
+    }
+  });
+}
 
 test('has no critical or serious axe violations with an empty list and completed tasks', async ({
   page,
