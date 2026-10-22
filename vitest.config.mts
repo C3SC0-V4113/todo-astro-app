@@ -10,7 +10,7 @@ export default defineConfig({
     environment: 'jsdom',
     include: ['tests/unit/**/*.test.{ts,tsx}', 'tests/integration/**/*.test.{ts,tsx}'],
     restoreMocks: true,
-    // Run with `pnpm run test --coverage`.
+    // Run with `pnpm exec vitest run --coverage` (pnpm 12 does not forward `pnpm run test --coverage`).
     coverage: {
       provider: 'v8',
       include: ['src/features/**/*.{ts,tsx}'],

@@ -42,6 +42,6 @@ Test libraries:
 4. Filters (Todas / Pendientes / Completadas) are buttons with `aria-pressed`. "Limpiar completadas" shows only when at least one task is completed.
 5. Data persists across reloads. If storage is invalid or throws, the app starts empty with no errors and no hydration warnings.
 6. The app is fully keyboard operable with visible focus, meets WCAG 2.2 AA, and axe reports no critical or serious violations. The counter uses `aria-live="polite"`.
-7. TypeScript is strict with no `any`. `pnpm run lint`, `typecheck`, `format:check` and `test` all pass. Coverage is at least 90 % for `state/` and `services/` and at least 80 % overall (`pnpm run test --coverage`).
+7. TypeScript is strict with no `any`. `pnpm run lint`, `typecheck`, `format:check` and `test` all pass. Coverage is at least 90 % for `state/` and `services/` and at least 80 % overall (`pnpm exec vitest run --coverage`).
 
 UI copy is in Spanish.
