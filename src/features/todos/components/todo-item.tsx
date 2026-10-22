@@ -34,7 +34,9 @@ export default function TodoItem({ todo, filter }: TodoItemProps) {
       setIsEditing(false);
       edit(todo.id, editValue);
     });
-    editButtonRef.current?.focus();
+    // An empty title removes the todo, so its Edit button no longer exists.
+    if (editValue.trim() === '') returnFocusToInput();
+    else editButtonRef.current?.focus();
   };
 
   const cancelEdit = () => {

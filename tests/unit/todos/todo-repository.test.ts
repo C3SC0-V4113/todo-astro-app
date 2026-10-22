@@ -30,6 +30,9 @@ describe('createLocalStorageRepository', () => {
       { todos: [], filter: 'unknown' },
       { todos: [{}], filter: 'all' },
       { todos: [{ id: 'a', title: 'x', completed: false, createdAt: Infinity }], filter: 'all' },
+      { todos: [{ id: 'a', title: 'x', completed: false, createdAt: -1 }], filter: 'all' },
+      { todos: [{ id: 'a', title: 'x', completed: false, createdAt: 1.5 }], filter: 'all' },
+      { todos: [{ id: 'a', title: '   ', completed: false, createdAt: 1 }], filter: 'all' },
     ]) {
       localStorage.setItem('data', JSON.stringify(invalid));
       expect(repository.load()).toBeNull();
@@ -57,6 +60,22 @@ describe('createLocalStorageRepository', () => {
     const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'window');
     try {
       Object.defineProperty(globalThis, 'window', { configurable: true, value: undefined });
+      const repository = createLocalStorageRepository();
+      expect(repository.load()).toBeNull();
+      expect(() => repository.save(saved)).not.toThrow();
+    } finally {
+      if (descriptor) Object.defineProperty(globalThis, 'window', descriptor);
+      else Reflect.deleteProperty(globalThis, 'window');
+    }
+  });
+
+  it('is safe when window exists without localStorage', () => {
+    const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'window');
+    try {
+      Object.defineProperty(globalThis, 'window', {
+        configurable: true,
+        value: { localStorage: undefined },
+      });
       const repository = createLocalStorageRepository();
       expect(repository.load()).toBeNull();
       expect(() => repository.save(saved)).not.toThrow();

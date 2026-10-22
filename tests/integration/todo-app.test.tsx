@@ -129,6 +129,8 @@ describe('TodoApp integration', () => {
     await waitFor(() => {
       expect(screen.queryByText('Aprender Astro y React')).toBeNull();
     });
+    // eslint-disable-next-line testing-library/no-node-access
+    expect(document.activeElement).toBe(input);
 
     await user.click(screen.getByRole('button', { name: 'Todas' }));
     await waitFor(() => {
