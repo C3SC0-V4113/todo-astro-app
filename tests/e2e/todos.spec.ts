@@ -204,6 +204,25 @@ test('supports the main task flow using only the keyboard and keeps visible focu
   await expectKeyboardFocus(input);
 });
 
+for (const [device, viewport] of [
+  ['desktop', { width: 1280, height: 800 }],
+  ['mobile', { width: 375, height: 740 }],
+] as const) {
+  test(`separates the new-task label from its field on ${device}`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await openApp(page);
+    const gap = await page
+      .getByRole('textbox', { name: 'Nueva tarea' })
+      .evaluate(
+        (input: HTMLInputElement) =>
+          input.getBoundingClientRect().top -
+          (input.labels?.[0]?.getBoundingClientRect().bottom ?? Number.NaN)
+      );
+    // `gap-2` on the field group: 8px between label and input.
+    expect(gap).toBeCloseTo(8, 0);
+  });
+}
+
 test('renders the static task page before JavaScript runs', async ({ browser }) => {
   const context = await browser.newContext({
     baseURL: 'http://127.0.0.1:3000',
