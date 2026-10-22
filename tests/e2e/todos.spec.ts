@@ -10,6 +10,7 @@ async function openApp(page: Page) {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Tareas', level: 1 })).toBeVisible();
   await expect(page.getByText('Cargando tareas…')).toBeHidden();
+  await expect(page.locator('[data-slot="skeleton"]')).toHaveCount(0);
 }
 
 async function expectKeyboardFocus(locator: Locator) {
@@ -214,7 +215,16 @@ test('renders the static task page before JavaScript runs', async ({ browser }) 
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'Tareas', level: 1 })).toBeVisible();
     await expect(page.getByRole('textbox', { name: 'Nueva tarea' })).toBeVisible();
-    await expect(page.getByText('Cargando tareas…')).toBeVisible();
+    // The loading message is for screen readers; sighted users get skeleton
+    // rows, which stay out of the accessibility tree.
+    await expect(page.getByText('Cargando tareas…')).toHaveClass('sr-only');
+    const skeletons = page.locator('[data-slot="skeleton"]');
+    await expect(skeletons).toHaveCount(4);
+    await expect(skeletons.first()).toBeVisible();
+    for (const skeleton of await skeletons.all()) {
+      await expect(skeleton).toHaveAttribute('aria-hidden', 'true');
+    }
+    await expect(page.getByText(/pendientes?$/)).toHaveCount(0);
   } finally {
     await context.close();
   }

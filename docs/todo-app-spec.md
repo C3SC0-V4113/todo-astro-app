@@ -27,7 +27,7 @@ Source of truth for the implementers. The quality gates and rules in `AGENTS.md`
 
 Only the coordinator changes `package.json`, `pnpm-lock.yaml`, configs or `src/components/ui/`.
 
-Available primitives in `src/components/ui/`: `button`, `input`, `checkbox`, `label`. Icons come from `lucide-react`.
+Available primitives in `src/components/ui/`: `button`, `input`, `checkbox`, `label`, `skeleton`. Icons come from `lucide-react`.
 
 Test libraries:
 
@@ -45,3 +45,11 @@ Test libraries:
 7. TypeScript is strict with no `any`. `pnpm run lint`, `typecheck`, `format:check` and `test` all pass. Coverage is at least 90 % for `state/` and `services/` and at least 80 % overall (`pnpm exec vitest run --coverage`).
 
 UI copy is in Spanish.
+
+## UI states
+
+### Loading (static HTML, before the store hydrates)
+
+- The list renders three `Skeleton` rows at the height of a single-line task row (`h-12.5`, 50px). The footer count renders a `Skeleton` in place of "N pendientes", so the static HTML never shows a wrong "0 pendientes".
+- The skeleton container fades in after 300ms. Hydration usually lands before that, so a fast load swaps straight to content without a flash. `Skeleton`'s own `animate-pulse` only changes opacity, which is acceptable under reduced motion.
+- Screen readers: skeletons are `aria-hidden`. A visually hidden "Cargando tareas…" paragraph stays readable while browsing, but it is not a live region, so nothing is announced on page load. The footer's `aria-live="polite"` region mounts with its first count after hydration, so loading stored data is not announced either; later count changes are.

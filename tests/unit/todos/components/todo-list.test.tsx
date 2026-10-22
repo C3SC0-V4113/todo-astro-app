@@ -21,6 +21,22 @@ describe('TodoList', () => {
     expect(view).toContain('Nueva tarea');
   });
 
+  it('renders decorative skeleton rows with a text-only loading message in static HTML', () => {
+    const view = renderToString(
+      <TodoProvider repository={createFakeRepository()}>
+        <TodoList />
+      </TodoProvider>
+    );
+
+    const skeletons = view.match(/<div[^>]*data-slot="skeleton"[^>]*>/g) ?? [];
+    expect(skeletons).toHaveLength(3);
+    skeletons.forEach((skeleton) => {
+      expect(skeleton).toContain('aria-hidden="true"');
+    });
+    expect(view).toContain('<p class="sr-only">Cargando tareas…</p>');
+    expect(view).not.toContain('role="status"');
+  });
+
   it('shows an empty message when hydrated and there are no visible todos', async () => {
     renderWithProvider(<TodoList />, {
       repository: createFakeRepository({ todos: [], filter: 'all' }),
@@ -31,6 +47,7 @@ describe('TodoList', () => {
     });
 
     expect(screen.getByText(/No hay tareas para mostrar/i)).not.toBeNull();
+    expect(screen.queryByText('Cargando tareas…')).toBeNull();
   });
 
   it('renders visible todos after hydration', async () => {
