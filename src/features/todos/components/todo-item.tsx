@@ -77,7 +77,7 @@ export default function TodoItem({ todo, filter }: TodoItemProps) {
     returnFocusToInput();
   };
 
-  const titleId = `todo-title-${todo.id}`;
+  const checkboxLabel = `${todo.completed ? 'Desmarcar' : 'Marcar'} ${todo.title}`;
 
   return (
     <div className="flex items-center gap-2 rounded-lg border border-border p-2">
@@ -85,7 +85,7 @@ export default function TodoItem({ todo, filter }: TodoItemProps) {
         id={`todo-${todo.id}`}
         checked={todo.completed}
         onCheckedChange={handleToggle}
-        aria-labelledby={titleId}
+        aria-label={checkboxLabel}
       />
       {isEditing ? (
         <div className="flex flex-1 items-center gap-2">
@@ -106,7 +106,6 @@ export default function TodoItem({ todo, filter }: TodoItemProps) {
       ) : (
         <>
           <span
-            id={titleId}
             className={cn('flex-1', todo.completed && 'text-muted-foreground line-through')}
             onDoubleClick={startEditing}
           >

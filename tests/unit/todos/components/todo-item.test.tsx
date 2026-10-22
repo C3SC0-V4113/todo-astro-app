@@ -52,6 +52,15 @@ describe('TodoItem', () => {
     expect(screen.getByText('Tarea de prueba')).not.toBeNull();
   });
 
+  it('keeps an accessible name on the checkbox while editing', async () => {
+    const user = userEvent.setup();
+    renderWithProvider(<TodoItem todo={todo} filter="all" />);
+
+    await user.dblClick(screen.getByText('Tarea de prueba'));
+
+    expect(screen.getByRole('checkbox').getAttribute('aria-label')).toMatch(/Tarea de prueba/);
+  });
+
   it('throws when used outside of a TodoProvider', () => {
     expect(() => render(<TodoItem todo={todo} filter="all" />)).toThrow(/useTodos/i);
   });
