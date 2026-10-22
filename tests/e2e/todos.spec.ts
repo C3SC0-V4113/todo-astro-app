@@ -28,7 +28,10 @@ async function expectKeyboardFocus(locator: Locator) {
 }
 
 async function expectNoSeriousAxeViolations(page: Page) {
-  const results = await new AxeBuilder({ page }).withTags(AXE_TAGS).analyze();
+  const results = await new AxeBuilder({ page })
+    .withTags(AXE_TAGS)
+    .exclude('astro-dev-toolbar')
+    .analyze();
   const violations = results.violations
     .filter((violation) => violation.impact === 'critical' || violation.impact === 'serious')
     .map((violation) => ({
@@ -68,9 +71,9 @@ test('supports task creation, completion, filtering, editing, deletion and clear
   await expect(comprarCheckbox).toHaveAttribute('aria-checked', 'true');
   await expect(page.getByText('1 pendiente')).toBeVisible();
 
-  const allFilter = page.getByRole('button', { name: 'Todas' });
-  const activeFilter = page.getByRole('button', { name: 'Pendientes' });
-  const completedFilter = page.getByRole('button', { name: 'Completadas' });
+  const allFilter = page.getByRole('button', { name: 'Todas', exact: true });
+  const activeFilter = page.getByRole('button', { name: 'Pendientes', exact: true });
+  const completedFilter = page.getByRole('button', { name: 'Completadas', exact: true });
   await expect(allFilter).toHaveAttribute('aria-pressed', 'true');
   await activeFilter.click();
   await expect(activeFilter).toHaveAttribute('aria-pressed', 'true');
