@@ -1,15 +1,12 @@
-/* eslint-disable testing-library/no-manual-cleanup */
-import { cleanup, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
-import { afterEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import TodoInput from '@/features/todos/components/todo-input';
 import TodoList from '@/features/todos/components/todo-list';
 import { TodoProvider } from '@/features/todos/state/todo-context';
 
 import { createFakeRepository, renderWithProvider } from '../test-utils';
-
-afterEach(cleanup);
 
 describe('TodoList', () => {
   it('renders the loading message and the new-task input in static HTML', () => {

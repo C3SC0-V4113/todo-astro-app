@@ -1,8 +1,7 @@
-/* eslint-disable testing-library/no-manual-cleanup */
-import { cleanup, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderToString } from 'react-dom/server';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import TodoFilters from '@/features/todos/components/todo-filters';
 import TodoFooter from '@/features/todos/components/todo-footer';
@@ -11,8 +10,6 @@ import TodoList from '@/features/todos/components/todo-list';
 import TodoApp from '@/features/todos/todo-app';
 
 import { createFakeRepository, renderWithProvider } from '../unit/todos/test-utils';
-
-afterEach(cleanup);
 
 function renderTodoUi(repository = createFakeRepository()) {
   return renderWithProvider(
@@ -96,10 +93,7 @@ describe('TodoApp integration', () => {
     await waitFor(() => {
       expect(screen.getByText('Aprender Astro avanzado')).not.toBeNull();
     });
-    // eslint-disable-next-line testing-library/no-node-access
-    expect(document.activeElement).toBe(
-      screen.getByRole('button', { name: /Editar Aprender Astro avanzado/i })
-    );
+    expect(screen.getByRole('button', { name: /Editar Aprender Astro avanzado/i })).toHaveFocus();
 
     await user.click(screen.getByRole('button', { name: /Editar Aprender Astro avanzado/i }));
     const editInput2 = screen.getByRole('textbox', { name: /Editar tarea/i });
@@ -129,8 +123,7 @@ describe('TodoApp integration', () => {
     await waitFor(() => {
       expect(screen.queryByText('Aprender Astro y React')).toBeNull();
     });
-    // eslint-disable-next-line testing-library/no-node-access
-    expect(document.activeElement).toBe(input);
+    expect(input).toHaveFocus();
 
     await user.click(screen.getByRole('button', { name: 'Todas' }));
     await waitFor(() => {
@@ -170,7 +163,6 @@ describe('TodoApp integration', () => {
       expect(screen.queryAllByRole('listitem')).toHaveLength(0);
     });
 
-    // eslint-disable-next-line testing-library/no-node-access
-    expect(document.activeElement).toBe(screen.getByRole('textbox', { name: /Nueva tarea/i }));
+    expect(screen.getByRole('textbox', { name: /Nueva tarea/i })).toHaveFocus();
   });
 });

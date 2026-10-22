@@ -1,13 +1,11 @@
-/* eslint-disable testing-library/no-manual-cleanup */
-import { cleanup, render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { renderToString } from 'react-dom/server';
+import { describe, expect, it } from 'vitest';
 
 import TodoItem from '@/features/todos/components/todo-item';
 
 import { renderWithProvider } from '../test-utils';
-
-afterEach(cleanup);
 
 describe('TodoItem', () => {
   const todo = { id: '1', title: 'Tarea de prueba', completed: false, createdAt: 1 };
@@ -62,6 +60,6 @@ describe('TodoItem', () => {
   });
 
   it('throws when used outside of a TodoProvider', () => {
-    expect(() => render(<TodoItem todo={todo} filter="all" />)).toThrow(/useTodos/i);
+    expect(() => renderToString(<TodoItem todo={todo} filter="all" />)).toThrow(/useTodos/i);
   });
 });

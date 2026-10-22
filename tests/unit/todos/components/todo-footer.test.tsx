@@ -1,15 +1,12 @@
-/* eslint-disable testing-library/no-manual-cleanup */
-import { cleanup, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import TodoFooter from '@/features/todos/components/todo-footer';
 import TodoInput from '@/features/todos/components/todo-input';
 import TodoList from '@/features/todos/components/todo-list';
 
 import { createFakeRepository, renderWithProvider } from '../test-utils';
-
-afterEach(cleanup);
 
 describe('TodoFooter', () => {
   it('returns focus to the new-task input after clearing completed', async () => {
@@ -41,7 +38,6 @@ describe('TodoFooter', () => {
       expect(screen.queryByRole('checkbox', { name: /Hecha/i })).toBeNull();
     });
 
-    // eslint-disable-next-line testing-library/no-node-access
-    expect(document.activeElement).toBe(screen.getByRole('textbox', { name: /Nueva tarea/i }));
+    expect(screen.getByRole('textbox', { name: /Nueva tarea/i })).toHaveFocus();
   });
 });

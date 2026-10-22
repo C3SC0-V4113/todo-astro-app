@@ -1,13 +1,11 @@
-/* eslint-disable testing-library/no-manual-cleanup */
-import { cleanup, render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { renderToString } from 'react-dom/server';
+import { describe, expect, it } from 'vitest';
 
 import TodoFilters from '@/features/todos/components/todo-filters';
 
 import { renderWithProvider } from '../test-utils';
-
-afterEach(cleanup);
 
 describe('TodoFilters', () => {
   it('renders the filter buttons with aria-pressed', () => {
@@ -37,6 +35,6 @@ describe('TodoFilters', () => {
   });
 
   it('throws when used outside of a TodoProvider', () => {
-    expect(() => render(<TodoFilters />)).toThrow(/useTodos/i);
+    expect(() => renderToString(<TodoFilters />)).toThrow(/useTodos/i);
   });
 });

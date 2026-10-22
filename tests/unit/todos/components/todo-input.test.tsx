@@ -1,16 +1,13 @@
-/* eslint-disable testing-library/no-manual-cleanup */
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderToString } from 'react-dom/server';
-import { afterEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import TodoInput from '@/features/todos/components/todo-input';
 import TodoList from '@/features/todos/components/todo-list';
 import { TodoProvider } from '@/features/todos/state/todo-context';
 
 import { createFakeRepository, renderWithProvider } from '../test-utils';
-
-afterEach(cleanup);
 
 describe('TodoInput', () => {
   it('renders a labelled textbox', () => {
@@ -80,6 +77,6 @@ describe('TodoInput', () => {
   });
 
   it('throws when used outside of a TodoProvider', () => {
-    expect(() => render(<TodoInput />)).toThrow(/useTodos/i);
+    expect(() => renderToString(<TodoInput />)).toThrow(/useTodos/i);
   });
 });
