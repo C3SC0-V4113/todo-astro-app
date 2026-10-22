@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
-test('loads the home page', async ({ page }) => {
+test('loads the todo app home page', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page.locator('body')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Tareas', level: 1 })).toBeVisible();
 });
