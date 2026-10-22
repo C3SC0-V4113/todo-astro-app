@@ -248,7 +248,8 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const) {
 
       await expect(skeleton).toHaveCSS('height', '50px');
       await expect(skeleton).toHaveCSS('animation-name', motionAllowed ? 'pulse' : 'none');
-      await expect(container).toHaveCSS('animation-delay', '0.3s');
+      await expect(container).toHaveCSS('animation-name', motionAllowed ? 'enter' : 'none');
+      await expect(container).toHaveCSS('animation-delay', motionAllowed ? '0.3s' : '0s');
       await expect(container).toHaveCSS('animation-duration', motionAllowed ? '0.3s' : '0s');
       await expect(container).toHaveCSS('opacity', '1');
     } finally {

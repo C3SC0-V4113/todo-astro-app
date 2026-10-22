@@ -51,9 +51,8 @@ UI copy is in Spanish.
 ### Loading (static HTML, before the store hydrates)
 
 - The list renders three `Skeleton` rows at the height of a single-line task row (`h-12.5`, 50px). The footer count renders a `Skeleton` in place of "N pendientes", so the static HTML never shows a wrong "0 pendientes".
-- The skeleton container appears after 300ms. Hydration usually lands before that, so a fast load swaps straight to content without a flash.
-- Motion is opt-in for `prefers-reduced-motion`, and the skeleton keeps its shape and size either way:
-  - `no-preference`: the container fades in over 300ms (`motion-safe:duration-300`) and each `Skeleton` pulses (`motion-safe:animate-pulse` in the primitive).
-  - `reduce`: no fade and no pulse. The container still waits 300ms but then appears instantly (`motion-reduce:duration-0`), and each `Skeleton` is a static block.
-  - An E2E test reads the computed `animation-name`, `animation-duration` and height under both preferences.
+- Motion is opt-in (`prefers-reduced-motion: no-preference` via `motion-safe:`), and the skeleton keeps its shape and size (50px rows) either way:
+  - `no-preference`: the container fades in after a 300ms delay (`animate-in`, `fade-in`, `delay-300`, `duration-300` and `fill-mode-both`, each behind `motion-safe:`). Hydration usually lands before that, so a fast load swaps straight to content without a flash. Each `Skeleton` pulses (`motion-safe:animate-pulse` in the primitive).
+  - `reduce`: no animation and no delay. The container and every `Skeleton` render static and visible at once.
+  - An E2E test reads the computed `animation-name`, delay, duration, opacity and the 50px height under both preferences.
 - Screen readers: skeletons are `aria-hidden`. A visually hidden "Cargando tareas…" paragraph stays readable while browsing, but it is not a live region, so nothing is announced on page load. The footer's `aria-live="polite"` region mounts with its first count after hydration, so loading stored data is not announced either; later count changes are.
