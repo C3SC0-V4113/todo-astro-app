@@ -6,8 +6,9 @@ import TodoItem from './todo-item';
 
 import type { Filter } from '@/features/todos/types';
 
-// Placeholder rows reserve roughly the height of a short list. They fade in
-// after a delay so a fast hydration swaps content without flashing them.
+// Placeholder rows reserve roughly the height of a short list. They appear after
+// a delay so a fast hydration swaps content without flashing them: a fade when
+// motion is allowed, an instant reveal under `prefers-reduced-motion: reduce`.
 const SKELETON_ROWS = ['first', 'second', 'third'] as const;
 
 // Shown when tasks exist but none match the active filter.
@@ -21,7 +22,7 @@ export default function TodoList() {
 
   if (!hydrated) {
     return (
-      <div className="flex animate-in flex-col gap-2 delay-300 duration-300 fill-mode-both fade-in">
+      <div className="flex animate-in flex-col gap-2 delay-300 fill-mode-both fade-in motion-safe:duration-300 motion-reduce:duration-0">
         <p className="sr-only">Cargando tareas…</p>
         {SKELETON_ROWS.map((row) => (
           <Skeleton key={row} aria-hidden className="h-12.5 w-full" />

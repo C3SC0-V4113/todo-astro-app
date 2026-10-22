@@ -51,7 +51,11 @@ UI copy is in Spanish.
 ### Loading (static HTML, before the store hydrates)
 
 - The list renders three `Skeleton` rows at the height of a single-line task row (`h-12.5`, 50px). The footer count renders a `Skeleton` in place of "N pendientes", so the static HTML never shows a wrong "0 pendientes".
-- The skeleton container fades in after 300ms. Hydration usually lands before that, so a fast load swaps straight to content without a flash. `Skeleton`'s own `animate-pulse` only changes opacity, which is acceptable under reduced motion.
+- The skeleton container appears after 300ms. Hydration usually lands before that, so a fast load swaps straight to content without a flash.
+- Motion is opt-in for `prefers-reduced-motion`, and the skeleton keeps its shape and size either way:
+  - `no-preference`: the container fades in over 300ms (`motion-safe:duration-300`) and each `Skeleton` pulses (`motion-safe:animate-pulse` in the primitive).
+  - `reduce`: no fade and no pulse. The container still waits 300ms but then appears instantly (`motion-reduce:duration-0`), and each `Skeleton` is a static block.
+  - An E2E test reads the computed `animation-name`, `animation-duration` and height under both preferences.
 - Screen readers: skeletons are `aria-hidden`. A visually hidden "Cargando tareas…" paragraph stays readable while browsing, but it is not a live region, so nothing is announced on page load. The footer's `aria-live="polite"` region mounts with its first count after hydration, so loading stored data is not announced either; later count changes are.
 
 ### Empty store versus a filter with no matches

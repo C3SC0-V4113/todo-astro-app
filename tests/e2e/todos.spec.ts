@@ -273,6 +273,33 @@ test('renders the static task page before JavaScript runs', async ({ browser }) 
   }
 });
 
+for (const reducedMotion of ['no-preference', 'reduce'] as const) {
+  test(`keeps the skeleton shape and gates its motion with reduced motion: ${reducedMotion}`, async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({
+      baseURL: 'http://127.0.0.1:3000',
+      javaScriptEnabled: false,
+      reducedMotion,
+    });
+    try {
+      const page = await context.newPage();
+      await page.goto('/');
+      const skeleton = page.locator('[data-slot="skeleton"]').first();
+      const container = skeleton.locator('..');
+      const motionAllowed = reducedMotion === 'no-preference';
+
+      await expect(skeleton).toHaveCSS('height', '50px');
+      await expect(skeleton).toHaveCSS('animation-name', motionAllowed ? 'pulse' : 'none');
+      await expect(container).toHaveCSS('animation-delay', '0.3s');
+      await expect(container).toHaveCSS('animation-duration', motionAllowed ? '0.3s' : '0s');
+      await expect(container).toHaveCSS('opacity', '1');
+    } finally {
+      await context.close();
+    }
+  });
+}
+
 test('has no critical or serious axe violations with an empty list and completed tasks', async ({
   page,
 }) => {
