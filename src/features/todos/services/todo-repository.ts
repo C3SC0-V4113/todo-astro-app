@@ -15,9 +15,11 @@ function isTodo(value: unknown): value is Todo {
   return (
     typeof todo.id === 'string' &&
     typeof todo.title === 'string' &&
+    todo.title.trim().length > 0 &&
     typeof todo.completed === 'boolean' &&
     typeof todo.createdAt === 'number' &&
-    Number.isFinite(todo.createdAt)
+    Number.isInteger(todo.createdAt) &&
+    todo.createdAt >= 0
   );
 }
 
@@ -39,7 +41,7 @@ export function createLocalStorageRepository(key: string = TODO_STORAGE_KEY): To
   return {
     load: () => {
       try {
-        if (typeof window === 'undefined') return null;
+        if (typeof window === 'undefined' || !window.localStorage) return null;
         const raw = window.localStorage.getItem(key);
         if (raw === null) return null;
         const parsed: unknown = JSON.parse(raw);
@@ -50,7 +52,7 @@ export function createLocalStorageRepository(key: string = TODO_STORAGE_KEY): To
     },
     save: (data) => {
       try {
-        if (typeof window === 'undefined') return;
+        if (typeof window === 'undefined' || !window.localStorage) return;
         window.localStorage.setItem(key, JSON.stringify(data));
       } catch {
         // Storage can be unavailable or quota limited; persistence is best effort.

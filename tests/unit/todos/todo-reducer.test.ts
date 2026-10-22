@@ -29,6 +29,12 @@ describe('todoReducer', () => {
     expect(next.todos[1]).toBe(todos[1]);
     expect(next.todos).not.toBe(todos);
     expect(todoReducer(state, { type: 'toggle', id: 'missing' })).toBe(state);
+
+    const completedState: TodoState = { ...state, todos: [{ ...todos[1] }] };
+    const activated = todoReducer(completedState, { type: 'toggle', id: 'b' });
+    expect(activated).not.toBe(completedState);
+    expect(activated.todos[0].completed).toBe(false);
+    expect(completedState.todos[0].completed).toBe(true);
   });
 
   it('edits a trimmed title and removes on an empty title', () => {
@@ -45,7 +51,11 @@ describe('todoReducer', () => {
   });
 
   it('clears completed todos and preserves identity when none are completed', () => {
-    expect(todoReducer(state, { type: 'clearCompleted' }).todos).toEqual([todos[0]]);
+    const next = todoReducer(state, { type: 'clearCompleted' });
+    expect(next).not.toBe(state);
+    expect(next.todos).not.toBe(todos);
+    expect(next.todos).toEqual([todos[0]]);
+    expect(state.todos).toEqual(todos);
     expect(todoReducer({ ...state, todos: [todos[0]] }, { type: 'clearCompleted' }).todos).toEqual([
       todos[0],
     ]);
@@ -57,17 +67,26 @@ describe('todoReducer', () => {
   });
 
   it('hydrates saved data or an empty state and marks it hydrated', () => {
-    expect(
-      todoReducer(initialTodoState, { type: 'hydrate', data: { todos, filter: 'completed' } })
-    ).toEqual({
+    const hydrated = todoReducer(initialTodoState, {
+      type: 'hydrate',
+      data: { todos, filter: 'completed' },
+    });
+    expect(hydrated).not.toBe(initialTodoState);
+    expect(hydrated).toEqual({
       todos,
       filter: 'completed',
       hydrated: true,
     });
-    expect(todoReducer(state, { type: 'hydrate', data: null })).toEqual({
+    expect(initialTodoState).toEqual({ todos: [], filter: 'all', hydrated: false });
+
+    const emptyHydration = todoReducer(state, { type: 'hydrate', data: null });
+    expect(emptyHydration).not.toBe(state);
+    expect(emptyHydration).toEqual({
       todos: [],
       filter: 'all',
       hydrated: true,
     });
+    expect(state.todos).toBe(todos);
+    expect(state.hydrated).toBe(true);
   });
 });
