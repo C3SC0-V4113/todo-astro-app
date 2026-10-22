@@ -1,12 +1,13 @@
-import { screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderToString } from 'react-dom/server';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import TodoFilters from '@/features/todos/components/todo-filters';
 import TodoFooter from '@/features/todos/components/todo-footer';
 import TodoInput from '@/features/todos/components/todo-input';
 import TodoList from '@/features/todos/components/todo-list';
+import { TODO_STORAGE_KEY } from '@/features/todos/services/todo-repository';
 import TodoApp from '@/features/todos/todo-app';
 
 import { createFakeRepository, renderWithProvider } from '../unit/todos/test-utils';
@@ -23,6 +24,56 @@ function renderTodoUi(repository = createFakeRepository()) {
   );
 }
 
+// Mirrors Astro `client:load`: static HTML from the server, then hydrateRoot on the client.
+function hydrateTodoApp() {
+  const container = document.createElement('div');
+  container.innerHTML = renderToString(<TodoApp />);
+  document.body.append(container);
+  const recoverableErrors: unknown[] = [];
+  render(<TodoApp />, {
+    container,
+    hydrate: true,
+    onRecoverableError: (error) => recoverableErrors.push(error),
+  });
+  return recoverableErrors;
+}
+
+describe('TodoApp hydration', () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it('hydrates the static HTML, then shows stored todos without mismatch errors', async () => {
+    localStorage.setItem(
+      TODO_STORAGE_KEY,
+      JSON.stringify({
+        todos: [{ id: '1', title: 'Guardada', completed: false, createdAt: 1 }],
+        filter: 'all',
+      })
+    );
+    const consoleError = vi.spyOn(console, 'error');
+
+    const recoverableErrors = hydrateTodoApp();
+
+    expect(await screen.findByText('Guardada')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /Nueva tarea/i })).toBeEnabled();
+    expect(recoverableErrors).toEqual([]);
+    expect(consoleError).not.toHaveBeenCalled();
+  });
+
+  it('hydrates with corrupt storage into an empty, usable list without errors', async () => {
+    localStorage.setItem(TODO_STORAGE_KEY, '{not json');
+    const consoleError = vi.spyOn(console, 'error');
+
+    const recoverableErrors = hydrateTodoApp();
+
+    expect(await screen.findByText('No hay tareas para mostrar.')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /Nueva tarea/i })).toBeEnabled();
+    expect(recoverableErrors).toEqual([]);
+    expect(consoleError).not.toHaveBeenCalled();
+  });
+});
+
 describe('TodoApp integration', () => {
   it('renders the loading state and new-task input in static HTML', () => {
     const view = renderToString(<TodoApp />);
@@ -31,7 +82,8 @@ describe('TodoApp integration', () => {
     expect(view).toContain('Nueva tarea');
   });
 
-  it('does not save before hydration', async () => {
+  it('loads stored todos without saving, and saves only after an action', async () => {
+    const user = userEvent.setup();
     const repository = createFakeRepository({
       todos: [{ id: '1', title: 'Persistida', completed: false, createdAt: 1 }],
       filter: 'all',
@@ -40,14 +92,17 @@ describe('TodoApp integration', () => {
     const saveSpy = vi.spyOn(repository, 'save');
     renderTodoUi(repository);
 
-    await waitFor(() => {
-      expect(screen.queryByText(/Cargando tareas…/i)).toBeNull();
-    });
+    expect(screen.getByText('Persistida')).toBeInTheDocument();
+    expect(loadSpy).toHaveBeenCalledOnce();
+    expect(saveSpy).not.toHaveBeenCalled();
 
-    const [loadOrder] = loadSpy.mock.invocationCallOrder;
-    const [saveOrder] = saveSpy.mock.invocationCallOrder;
-    expect(loadOrder).toBeLessThan(saveOrder);
-    expect(saveSpy).toHaveBeenCalledWith(repository.load());
+    await user.type(screen.getByRole('textbox', { name: /Nueva tarea/i }), 'Nueva{Enter}');
+
+    expect(saveSpy).toHaveBeenCalledOnce();
+    expect(saveSpy.mock.calls[0][0].todos.map((todo) => todo.title)).toEqual([
+      'Persistida',
+      'Nueva',
+    ]);
   });
 
   it('completes a full CRUD, filter and focus flow', async () => {

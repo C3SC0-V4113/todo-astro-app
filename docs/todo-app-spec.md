@@ -7,11 +7,11 @@ Source of truth for the implementers. The quality gates and rules in `AGENTS.md`
 - Astro renders static HTML (`output: 'static'`, no adapter). `src/pages/index.astro` uses `src/layouts/main.astro`.
 - One React island, `<TodoApp client:load />`, owns CRUD, filters and persistence.
   - `client:load` because the island is the page's primary, above-the-fold control. `idle`/`visible` would delay input, and `only` would drop the static HTML.
-- Layers: UI components → `useTodos` (context) → pure reducer/selectors → `TodoRepository`.
-- No `window` or `localStorage` access during render.
-  - The reducer starts from `initialTodoState` (`hydrated: false`).
-  - An effect calls `repository.load()` and dispatches `hydrate`.
-  - The save effect runs only when `hydrated === true`.
+- Layers: UI components → `useTodos` (context) → `TodoStore` (`useSyncExternalStore`) → pure reducer/selectors → `TodoRepository`.
+- No `window` or `localStorage` access during the static render or hydration.
+  - `getServerSnapshot` returns `initialTodoState` (`hydrated: false`), so the static HTML and the hydration render match.
+  - `getSnapshot` calls `repository.load()` once, on the first client snapshot, and applies `hydrate`.
+  - `dispatch` saves only after an action that changes state, so stored data is never overwritten before it loads.
 
 ## Files and owners
 

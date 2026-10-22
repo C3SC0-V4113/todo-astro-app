@@ -1,45 +1,36 @@
-/* eslint-disable react-you-might-not-need-an-effect/no-pass-data-to-parent --
-   The spec requires useReducer to live inside TodoProvider and expose state/dispatch
-   through React context. The rule misidentifies this provider pattern as passing data
-   to a parent component. */
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react';
 
-import { createContext, useContext, useEffect, useMemo, useReducer, type ReactNode } from 'react';
-
-import { initialTodoState, todoReducer } from '@/features/todos/state/todo-reducer';
+import { createTodoStore } from '@/features/todos/state/todo-store';
 
 import type { TodoRepository } from '@/features/todos/services/todo-repository';
-import type { PersistedTodos, TodoAction, TodoState } from '@/features/todos/types';
+import type { TodoAction, TodoState } from '@/features/todos/types';
 
 interface TodoContextValue {
   state: TodoState;
-  dispatch: React.Dispatch<TodoAction>;
-  repository: TodoRepository;
+  dispatch: (action: TodoAction) => void;
 }
 
 export const TodoContext = createContext<TodoContextValue | null>(null);
 
 interface TodoProviderProps {
   children: ReactNode;
+  /** Read once, when the provider mounts. */
   repository: TodoRepository;
 }
 
 export function TodoProvider({ children, repository }: TodoProviderProps) {
-  const [state, dispatch] = useReducer(todoReducer, initialTodoState);
-
-  useEffect(() => {
-    const data = repository.load();
-    dispatch({ type: 'hydrate', data });
-  }, [repository]);
-
-  useEffect(() => {
-    if (!state.hydrated) {
-      return;
-    }
-    const data: PersistedTodos = { todos: state.todos, filter: state.filter };
-    repository.save(data);
-  }, [state.hydrated, state.todos, state.filter, repository]);
-
-  const value = useMemo(() => ({ state, dispatch, repository }), [state, dispatch, repository]);
+  const [store] = useState(() => createTodoStore(repository));
+  // The static render and hydration use the server snapshot (`hydrated: false`);
+  // React then re-renders with the stored data, so the HTML always matches.
+  const state = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
+  const value = useMemo(() => ({ state, dispatch: store.dispatch }), [state, store]);
 
   return <TodoContext.Provider value={value}>{children}</TodoContext.Provider>;
 }
