@@ -67,7 +67,9 @@ describe('TodoApp hydration', () => {
 
     const recoverableErrors = hydrateTodoApp();
 
-    expect(await screen.findByText('No hay tareas para mostrar.')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Aún no tienes tareas' })
+    ).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: /Nueva tarea/i })).toBeEnabled();
     expect(recoverableErrors).toEqual([]);
     expect(consoleError).not.toHaveBeenCalled();

@@ -155,7 +155,7 @@ test('recovers from corrupt storage without console or hydration errors', async 
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Tareas', level: 1 })).toBeVisible();
   await expect(page.getByText('Cargando tareas…')).toBeHidden();
-  await expect(page.getByText('No hay tareas para mostrar.')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Aún no tienes tareas' })).toBeVisible();
   expect(consoleErrors).toEqual([]);
   expect(hydrationWarnings).toEqual([]);
 });
@@ -203,6 +203,32 @@ test('supports the main task flow using only the keyboard and keeps visible focu
   await page.keyboard.press('Space');
   await expect(page.getByRole('listitem')).toHaveCount(0);
   await expectKeyboardFocus(input);
+});
+
+test('shows the empty state without moving focus, and its CTA focuses the new-task input', async ({
+  page,
+}) => {
+  await openApp(page);
+  const input = page.getByRole('textbox', { name: 'Nueva tarea' });
+  const cta = page.getByRole('button', { name: 'Añadir tu primera tarea' });
+  await expect(page.getByRole('heading', { name: 'Aún no tienes tareas' })).toBeVisible();
+  await expect(input).not.toBeFocused();
+  await expect(cta).not.toBeFocused();
+
+  await page.keyboard.press('Tab');
+  await expectKeyboardFocus(input);
+  await page.keyboard.press('Tab');
+  await expectKeyboardFocus(cta);
+  await page.keyboard.press('Enter');
+  await expectKeyboardFocus(input);
+
+  await page.keyboard.type('Primera tarea');
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('listitem')).toHaveCount(1);
+  await expect(page.getByRole('heading', { name: 'Aún no tienes tareas' })).toBeHidden();
+
+  await page.getByRole('button', { name: 'Eliminar Primera tarea' }).click();
+  await expect(page.getByRole('heading', { name: 'Aún no tienes tareas' })).toBeVisible();
 });
 
 test('renders the static task page before JavaScript runs', async ({ browser }) => {

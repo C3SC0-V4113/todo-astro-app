@@ -1,6 +1,7 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTodos } from '@/features/todos/hooks/use-todos';
 
+import TodoEmptyState from './todo-empty-state';
 import TodoItem from './todo-item';
 
 // Placeholder rows reserve roughly the height of a short list. They fade in
@@ -8,7 +9,7 @@ import TodoItem from './todo-item';
 const SKELETON_ROWS = ['first', 'second', 'third'] as const;
 
 export default function TodoList() {
-  const { visibleTodos, hydrated, filter } = useTodos();
+  const { todos, visibleTodos, hydrated, filter } = useTodos();
 
   if (!hydrated) {
     return (
@@ -19,6 +20,10 @@ export default function TodoList() {
         ))}
       </div>
     );
+  }
+
+  if (todos.length === 0) {
+    return <TodoEmptyState />;
   }
 
   if (visibleTodos.length === 0) {

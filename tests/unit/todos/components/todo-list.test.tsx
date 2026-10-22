@@ -37,7 +37,7 @@ describe('TodoList', () => {
     expect(view).not.toContain('role="status"');
   });
 
-  it('shows an empty message when hydrated and there are no visible todos', async () => {
+  it('shows the empty state when hydrated and the store has no tasks', async () => {
     renderWithProvider(<TodoList />, {
       repository: createFakeRepository({ todos: [], filter: 'all' }),
     });
@@ -46,7 +46,7 @@ describe('TodoList', () => {
       expect(screen.queryByText(/Cargando tareas…/i)).toBeNull();
     });
 
-    expect(screen.getByText(/No hay tareas para mostrar/i)).not.toBeNull();
+    expect(screen.getByRole('heading', { name: 'Aún no tienes tareas' })).toBeVisible();
     expect(screen.queryByText('Cargando tareas…')).toBeNull();
   });
 
