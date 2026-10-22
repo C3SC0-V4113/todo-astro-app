@@ -5,10 +5,11 @@ import { Label } from '@/components/ui/label';
 import { useTodos } from '@/features/todos/hooks/use-todos';
 
 export default function TodoInput() {
-  const { add } = useTodos();
+  const { add, hydrated } = useTodos();
   const [value, setValue] = useState('');
 
   const submit = () => {
+    if (!hydrated) return;
     const trimmed = value.trim();
     if (!trimmed) return;
     add(trimmed);
@@ -16,6 +17,7 @@ export default function TodoInput() {
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (!hydrated) return;
     if (event.nativeEvent.isComposing) return;
     if (event.key !== 'Enter') return;
     event.preventDefault();
@@ -29,6 +31,7 @@ export default function TodoInput() {
         id="new-todo"
         type="text"
         value={value}
+        disabled={!hydrated}
         onChange={(event) => setValue(event.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="¿Qué necesitas hacer?"

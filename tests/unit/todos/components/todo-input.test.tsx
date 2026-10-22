@@ -1,10 +1,12 @@
 /* eslint-disable testing-library/no-manual-cleanup */
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { renderToString } from 'react-dom/server';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import TodoInput from '@/features/todos/components/todo-input';
 import TodoList from '@/features/todos/components/todo-list';
+import { TodoProvider } from '@/features/todos/state/todo-context';
 
 import { createFakeRepository, renderWithProvider } from '../test-utils';
 
@@ -15,6 +17,26 @@ describe('TodoInput', () => {
     renderWithProvider(<TodoInput />);
 
     expect(screen.getByRole('textbox', { name: /Nueva tarea/i })).not.toBeNull();
+  });
+
+  it('renders the input disabled in static HTML', () => {
+    const view = renderToString(
+      <TodoProvider repository={createFakeRepository()}>
+        <TodoInput />
+      </TodoProvider>
+    );
+
+    expect(view).toContain('disabled');
+  });
+
+  it('enables the input after hydration', async () => {
+    renderWithProvider(<TodoInput />, { repository: createFakeRepository() });
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Cargando tareas…/i)).toBeNull();
+    });
+
+    expect(screen.getByRole('textbox', { name: /Nueva tarea/i })).toHaveProperty('disabled', false);
   });
 
   it('clears the input after pressing Enter with a non-empty title', async () => {
