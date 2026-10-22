@@ -19,7 +19,10 @@ export default defineConfig({
     { name: 'webkit', use: { ...devices['Desktop Safari'] } },
   ],
   webServer: {
-    command: 'pnpm run dev -- --hostname 127.0.0.1 --port 3000',
+    // Call astro directly: `pnpm run dev -- …` forwards a literal `--` that makes
+    // astro ignore the flags. `--ignore-lock` keeps the server in the foreground
+    // when astro detects an AI agent, so Playwright can manage its lifecycle.
+    command: 'pnpm exec astro dev --host 127.0.0.1 --port 3000 --ignore-lock',
     url: baseUrl,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
