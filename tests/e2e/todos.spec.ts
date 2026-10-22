@@ -28,10 +28,7 @@ async function expectKeyboardFocus(locator: Locator) {
 }
 
 async function expectNoSeriousAxeViolations(page: Page) {
-  const results = await new AxeBuilder({ page })
-    .withTags(AXE_TAGS)
-    .exclude('astro-dev-toolbar')
-    .analyze();
+  const results = await new AxeBuilder({ page }).withTags(AXE_TAGS).analyze();
   const violations = results.violations
     .filter((violation) => violation.impact === 'critical' || violation.impact === 'serious')
     .map((violation) => ({

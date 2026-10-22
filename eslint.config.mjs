@@ -78,7 +78,6 @@ const eslintConfig = defineConfig([
     languageOptions: vitest.configs.env.languageOptions,
     rules: {
       ...vitest.configs.recommended.rules,
-      'vitest/no-disabled-tests': 'warn',
       'vitest/no-focused-tests': 'error',
     },
   },
