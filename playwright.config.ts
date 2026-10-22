@@ -21,8 +21,10 @@ export default defineConfig({
   webServer: {
     // Test the production static build: dev mode injects the Astro dev toolbar
     // and React Scan, which are not part of the shipped page. Call astro
-    // directly because `pnpm run <script> -- …` forwards a literal `--`.
-    command: 'pnpm exec astro build && pnpm exec astro preview --host 127.0.0.1 --port 3000',
+    // directly because `pnpm run <script> -- …` forwards a literal `--`;
+    // `--ignore-lock` keeps preview in the foreground when astro detects an AI agent.
+    command:
+      'pnpm exec astro build && pnpm exec astro preview --host 127.0.0.1 --port 3000 --ignore-lock',
     url: baseUrl,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
