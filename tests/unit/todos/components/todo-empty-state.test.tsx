@@ -27,6 +27,7 @@ describe('TodoEmptyState', () => {
 
     expect(view).toContain('data-slot="empty"');
     expect(view).toContain('data-variant="outline"');
+    expect(view).toContain('data-size="sm"');
     expect(view).toContain('data-slot="empty-header"');
     expect(view).toContain('data-slot="empty-title"');
     expect(view).toContain('data-slot="empty-description"');

@@ -231,6 +231,18 @@ test('shows the empty state without moving focus, and its CTA focuses the new-ta
   await expect(page.getByRole('heading', { name: 'Aún no tienes tareas' })).toBeVisible();
 });
 
+for (const width of [320, 1280]) {
+  test(`keeps the empty state at the skeleton height at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 });
+    await openApp(page);
+    const empty = page.locator('[data-slot="empty"]');
+    await expect(empty).toBeVisible();
+    await expect(empty).toHaveCSS('border-top-style', 'dashed');
+    // Three 50px skeleton rows plus two 8px gaps: a taller panel shifts the filters.
+    await expect(empty).toHaveCSS('height', '166px');
+  });
+}
+
 test('tells a filter with no matches apart from an empty list', async ({ page }) => {
   await openApp(page);
   const input = page.getByRole('textbox', { name: 'Nueva tarea' });

@@ -18,8 +18,9 @@ export default function TodoEmptyState() {
 
   return (
     // Same height as the three hydration skeleton rows, so an empty store loads
-    // without shifting the filters and footer.
-    <Empty variant="outline" className="min-h-41.5">
+    // without shifting the filters and footer. The compact size keeps the wrapped
+    // copy inside that height down to a 320px viewport.
+    <Empty variant="outline" size="sm" className="min-h-41.5">
       <EmptyHeader>
         <EmptyTitle>
           <h2>Aún no tienes tareas</h2>
