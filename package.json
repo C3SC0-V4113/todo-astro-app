@@ -9,6 +9,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "preview:cf": "astro build && wrangler dev",
     "astro": "astro",
     "test": "vitest run",
     "test:watch": "vitest",

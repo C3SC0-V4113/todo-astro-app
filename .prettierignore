@@ -20,6 +20,7 @@ package-lock.json
 .codegraph
 .atl
 .react-scan
+.wrangler
 # Test reports; Playwright's HTML report bundles minified trace-viewer scripts.
 playwright-report
 test-results
