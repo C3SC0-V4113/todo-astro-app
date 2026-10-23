@@ -124,6 +124,7 @@ const eslintConfig = defineConfig([
     '.codegraph/**',
     '.atl/**',
     '.react-scan/**',
+    '.wrangler/**',
     '.astro/**',
     'src/components/ui/**',
   ]),
