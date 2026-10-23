@@ -56,3 +56,15 @@ UI copy is in Spanish.
   - `reduce`: no animation and no delay. The container and every `Skeleton` render static and visible at once.
   - An E2E test reads the computed `animation-name`, delay, duration, opacity and the 50px height under both preferences.
 - Screen readers: skeletons are `aria-hidden`. A visually hidden "Cargando tareas…" paragraph stays readable while browsing, but it is not a live region, so nothing is announced on page load. The footer's `aria-live="polite"` region mounts with its first count after hydration, so loading stored data is not announced either; later count changes are.
+
+### Empty store versus a filter with no matches
+
+- **Empty store** (`todos.length === 0`, any filter): `TodoEmptyState` renders a heading, guidance and a CTA in a dashed panel. Its `min-h-41.5` (166px) matches the three skeleton rows, so an empty store loads with no layout shift.
+  - Compose it with the shadcn `Empty` primitive: `Empty`, `EmptyHeader`, `EmptyTitle`, `EmptyDescription` and `EmptyContent`. The dashed border comes from `Empty`'s `outline` variant (the official `border` class, added as a variant so the call site passes only layout classes and `shadcn/no-restyle` needs no suppression). Its compact `size="sm"` (`p-4` instead of the default `p-6`) keeps the wrapped copy within the 166px at a 320px viewport. Keep the native `h2` inside `EmptyTitle`; do not return to custom empty-state markup.
+  - Heading (`h2`): "Aún no tienes tareas".
+  - Guidance: "Escribe en «Nueva tarea» y pulsa Enter para guardarla." It names the field's visible label, because the input has no submit button.
+  - CTA (`Button variant="outline"`): "Añadir tu primera tarea".
+- **Filter with no matches** (tasks exist, none visible): a muted paragraph, without the CTA. Adding a task is not the fix here; switching filters is, and the filter buttons sit right below.
+  - Pendientes: "No hay tareas pendientes."
+  - Completadas: "Todavía no hay tareas completadas."
+- **Focus:** showing the empty state never moves focus, on load or after the last task is deleted (deleting already returns focus to the input as before). Only an explicit CTA activation (click, Enter or Space) moves focus to `#new-todo`. That is the CTA's whole promise and the one place a task can be added, so it works like an in-page skip link; screen readers then announce the labelled "Nueva tarea" field. An `<a href="#new-todo">` was rejected because fragment navigation does not reliably focus the input across browsers.

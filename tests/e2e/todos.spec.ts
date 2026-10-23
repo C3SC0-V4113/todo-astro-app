@@ -155,7 +155,7 @@ test('recovers from corrupt storage without console or hydration errors', async 
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Tareas', level: 1 })).toBeVisible();
   await expect(page.getByText('Cargando tareas…')).toBeHidden();
-  await expect(page.getByText('No hay tareas para mostrar.')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Aún no tienes tareas' })).toBeVisible();
   expect(consoleErrors).toEqual([]);
   expect(hydrationWarnings).toEqual([]);
 });
@@ -203,6 +203,61 @@ test('supports the main task flow using only the keyboard and keeps visible focu
   await page.keyboard.press('Space');
   await expect(page.getByRole('listitem')).toHaveCount(0);
   await expectKeyboardFocus(input);
+});
+
+test('shows the empty state without moving focus, and its CTA focuses the new-task input', async ({
+  page,
+}) => {
+  await openApp(page);
+  const input = page.getByRole('textbox', { name: 'Nueva tarea' });
+  const cta = page.getByRole('button', { name: 'Añadir tu primera tarea' });
+  await expect(page.getByRole('heading', { name: 'Aún no tienes tareas' })).toBeVisible();
+  await expect(input).not.toBeFocused();
+  await expect(cta).not.toBeFocused();
+
+  await page.keyboard.press('Tab');
+  await expectKeyboardFocus(input);
+  await page.keyboard.press('Tab');
+  await expectKeyboardFocus(cta);
+  await page.keyboard.press('Enter');
+  await expectKeyboardFocus(input);
+
+  await page.keyboard.type('Primera tarea');
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('listitem')).toHaveCount(1);
+  await expect(page.getByRole('heading', { name: 'Aún no tienes tareas' })).toBeHidden();
+
+  await page.getByRole('button', { name: 'Eliminar Primera tarea' }).click();
+  await expect(page.getByRole('heading', { name: 'Aún no tienes tareas' })).toBeVisible();
+});
+
+for (const width of [320, 1280]) {
+  test(`keeps the empty state at the skeleton height at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 });
+    await openApp(page);
+    const empty = page.locator('[data-slot="empty"]');
+    await expect(empty).toBeVisible();
+    await expect(empty).toHaveCSS('border-top-style', 'dashed');
+    // Three 50px skeleton rows plus two 8px gaps: a taller panel shifts the filters.
+    await expect(empty).toHaveCSS('height', '166px');
+  });
+}
+
+test('tells a filter with no matches apart from an empty list', async ({ page }) => {
+  await openApp(page);
+  const input = page.getByRole('textbox', { name: 'Nueva tarea' });
+  await input.fill('Sin completar');
+  await input.press('Enter');
+
+  await page.getByRole('button', { name: 'Completadas', exact: true }).click();
+  await expect(page.getByText('Todavía no hay tareas completadas.')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Aún no tienes tareas' })).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Añadir tu primera tarea' })).toBeHidden();
+
+  await page.getByRole('button', { name: 'Pendientes', exact: true }).click();
+  await page.getByRole('checkbox', { name: 'Marcar Sin completar' }).click();
+  await expect(page.getByText('No hay tareas pendientes.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Añadir tu primera tarea' })).toBeHidden();
 });
 
 for (const [device, viewport] of [
