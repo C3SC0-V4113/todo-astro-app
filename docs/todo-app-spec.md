@@ -60,7 +60,7 @@ UI copy is in Spanish.
 ### Empty store versus a filter with no matches
 
 - **Empty store** (`todos.length === 0`, any filter): `TodoEmptyState` renders a heading, guidance and a CTA in a dashed panel. Its `min-h-41.5` (166px) matches the three skeleton rows, so an empty store loads with no layout shift.
-  - Compose it with the shadcn `Empty` primitive: `Empty`, `EmptyHeader`, `EmptyTitle`, `EmptyDescription` and `EmptyContent`. Keep the native `h2` inside `EmptyTitle`; do not return to custom empty-state markup.
+  - Compose it with the shadcn `Empty` primitive: `Empty`, `EmptyHeader`, `EmptyTitle`, `EmptyDescription` and `EmptyContent`. The dashed border comes from `Empty`'s `outline` variant (the official `border` class, added as a variant so the call site passes only layout classes and `shadcn/no-restyle` needs no suppression). Keep the native `h2` inside `EmptyTitle`; do not return to custom empty-state markup.
   - Heading (`h2`): "Aún no tienes tareas".
   - Guidance: "Escribe en «Nueva tarea» y pulsa Enter para guardarla." It names the field's visible label, because the input has no submit button.
   - CTA (`Button variant="outline"`): "Añadir tu primera tarea".

@@ -19,8 +19,7 @@ export default function TodoEmptyState() {
   return (
     // Same height as the three hydration skeleton rows, so an empty store loads
     // without shifting the filters and footer.
-    // eslint-disable-next-line shadcn/no-restyle -- Empty provides dashed style but no border width.
-    <Empty className="min-h-41.5 border">
+    <Empty variant="outline" className="min-h-41.5">
       <EmptyHeader>
         <EmptyTitle>
           <h2>Aún no tienes tareas</h2>
