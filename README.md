@@ -25,6 +25,10 @@ pnpm run doctor
 pnpm run check
 ```
 
+## Local Cloudflare static preview
+
+Run `pnpm run preview:cf` to build the static Astro site and serve `./dist` with Wrangler at <http://localhost:8787>. This local preview needs no Cloudflare account or credentials. It serves static assets only: no Cloudflare adapter, server-side rendering, or deployment is configured.
+
 ## Tooling
 
 - Astro project with TypeScript, Tailwind, and React islands.
