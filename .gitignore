@@ -22,6 +22,7 @@ pnpm-debug.log*
 .codegraph/
 .atl/
 .react-scan/
+.wrangler/
 playwright-report/
 test-results/
 blob-report/

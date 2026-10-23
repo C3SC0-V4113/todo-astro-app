@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "todo-astro-app",
+  // Pin runtime behavior to the bundled workerd version.
+  "compatibility_date": "2026-10-12",
+  "assets": {
+    "directory": "./dist",
+  },
+}
