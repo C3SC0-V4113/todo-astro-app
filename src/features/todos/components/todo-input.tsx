@@ -25,7 +25,7 @@ export default function TodoInput() {
   };
 
   return (
-    <div className="w-full">
+    <div className="flex w-full flex-col gap-2">
       <Label htmlFor="new-todo">Nueva tarea</Label>
       <Input
         id="new-todo"
