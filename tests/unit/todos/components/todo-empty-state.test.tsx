@@ -1,7 +1,9 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { renderToString } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 
+import TodoEmptyState from '@/features/todos/components/todo-empty-state';
 import TodoInput from '@/features/todos/components/todo-input';
 import TodoList from '@/features/todos/components/todo-list';
 
@@ -20,6 +22,22 @@ function renderInputAndList(initial: PersistedTodos | null = null) {
 }
 
 describe('TodoEmptyState', () => {
+  it('composes the real Empty primitive slots with semantic content', () => {
+    const view = renderToString(<TodoEmptyState />);
+
+    expect(view).toContain('data-slot="empty"');
+    expect(view).toContain('data-slot="empty-header"');
+    expect(view).toContain('data-slot="empty-title"');
+    expect(view).toContain('data-slot="empty-description"');
+    expect(view).toContain('data-slot="empty-content"');
+    expect(view).toMatch(
+      /<div[^>]*data-slot="empty-title"[^>]*><h2>Aún no tienes tareas<\/h2><\/div>/
+    );
+    expect(view).toMatch(
+      /<div[^>]*data-slot="empty-content"[^>]*>[\s\S]*?<button\b[^>]*>[\s\S]*?Añadir tu primera tarea[\s\S]*?<\/button>[\s\S]*?<\/div>/
+    );
+  });
+
   it('shows the empty state with a heading, guidance and a CTA when the store has no tasks', () => {
     renderInputAndList();
 
